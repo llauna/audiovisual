@@ -1,0 +1,175 @@
+@startuml
+!theme spacelab
+
+' Colores por tipo de entidad
+skinparam entity {
+    BackgroundColor<<Logistica>> #D5E8D4
+    BorderColor<<Logistica>> #82B366
+    BackgroundColor<<Evento>> #FFF2CC
+    BorderColor<<Evento>> #D6B656
+    BackgroundColor<<Personal>> #F8CECC
+    BorderColor<<Personal>> #B85450
+    BackgroundColor<<Finanzas>> #DAE8FC
+    BorderColor<<Finanzas>> #6C8EBF
+}
+
+' AGRUPACIÓN: LOGÍSTICA
+package "📦 Logística" {
+    entity "🏢 Almacén" as Almacen <<Logistica>> {
+      *ID_almacen : int
+      Nombre : string
+      Ubicacion : string
+      Capacidad : float
+      Tipo : string
+      Responsable : int
+    }
+
+    entity "📦 Inventario" as Inventario <<Logistica>> {
+      *ID_item : int
+      Nombre : string
+      Categoria : string
+      Cantidad : int
+      Unidad : string
+      Ubicacion_actual : string
+      Estado : string
+    }
+
+    entity "🔄 MovimientoInventario" as MovimientoInventario <<Logistica>> {
+      *ID_movimiento : int
+      Item : int
+      Cantidad : int
+      Origen : string
+      Destino : string
+      Fecha : date
+      Responsable : int
+      Es_solicitud_entre_almacenes : boolean
+    }
+
+    entity "🚚 Transporte" as Transporte <<Logistica>> {
+      *ID_transporte : int
+      Tipo : string
+      Capacidad : float
+      Estado : string
+      Conductor_asignado : int
+      Ruta : string
+    }
+}
+
+' AGRUPACIÓN: EVENTOS
+package "🎭 Eventos" {
+    entity "🎭 Evento" as Evento <<Evento>> {
+      *ID_evento : int
+      Nombre : string
+      Tipo : string
+      Fecha_inicio : date
+      Fecha_fin : date
+      Ubicacion : string
+      Organizador : string
+      Estado : string
+    }
+
+    entity "📄 Contrato" as Contrato <<Evento>> {
+      *ID_contrato : int
+      Evento_asociado : int
+      Proveedor : string
+      Fecha_inicio : date
+      Fecha_fin : date
+      Condiciones : string
+      Estado : string
+    }
+}
+
+' AGRUPACIÓN: PERSONAL
+package "👥 Personal" {
+    entity "👥 Personal" as Personal <<Personal>> {
+      *ID_personal : int
+      Nombre : string
+      Rol : string
+      Contacto : string
+      Disponibilidad : string
+    }
+
+    entity "🗓 CalendarioVacaciones" as CalendarioVacaciones <<Personal>> {
+      *ID_vacacion : int
+      ID_personal : int
+      Fecha_inicio : date
+      Fecha_fin : date
+      Estado : string
+    }
+
+    entity "💰 Nomina" as Nomina <<Personal>> {
+      *ID_nomina : int
+      ID_personal : int
+      Mes : string
+      Año : int
+      Salario_bruto : float
+      Deducciones : float
+      Salario_neto : float
+    }
+}
+
+' AGRUPACIÓN: FINANZAS
+package "📊 Finanzas" {
+    entity "📊 Presupuesto" as Presupuesto <<Finanzas>> {
+      *ID_presupuesto : int
+      Cliente : string
+      Evento_asociado : int
+      Fecha : date
+      Importe_total : float
+      Estado : string
+    }
+}
+
+' RELACIONES
+Almacen ||--o{ Inventario : contiene
+Inventario ||--o{ MovimientoInventario : movimiento
+MovimientoInventario }o--|| Evento : asigna
+Evento ||--o{ Transporte : requiere
+Inventario }o--|| Personal : gestionado_por
+Evento ||--o{ Contrato : contrato
+Evento }o--|| Personal : coordinado_por
+Transporte }o--|| Personal : conducido_por
+
+Evento ||--o{ Presupuesto : presupuesto
+Personal ||--o{ Nomina : nomina
+Personal ||--o{ CalendarioVacaciones : vacaciones
+CalendarioVacaciones }o--|| Evento : afecta_disponibilidad
+Almacen ||--o{ MovimientoInventario : solicita_material
+
+' NOTAS DE REGLAS DE NEGOCIO
+note right of Almacen
+1. Cada almacén tiene un responsable.
+2. Puede contener múltiples ítems de inventario.
+3. Solicitudes entre almacenes no muestran el evento destino.
+end note
+
+note right of Inventario
+1. Categorías: sonido, iluminación, mobiliario, etc.
+2. Estados: disponible, en uso, mantenimiento.
+3. Asignado a eventos vía MovimientoInventario.
+end note
+
+note right of Evento
+1. Tipos: concierto, teatro, feria.
+2. Puede requerir transportes y contratos.
+3. Vinculado a presupuestos para clientes.
+4. Vacaciones del personal afectan disponibilidad.
+end note
+
+note right of Personal
+1. Roles: técnico, montador, coordinador.
+2. Control de nóminas y vacaciones.
+3. Disponibilidad consultada antes de asignar.
+end note
+
+note right of Presupuesto
+1. Vinculado a evento y cliente.
+2. Estados: pendiente, aprobado, rechazado.
+3. Presupuestos aprobados generan contratos.
+end note
+
+note right of MovimientoInventario
+1. Registra origen, destino, fecha y responsable.
+2. Campo Es_solicitud_entre_almacenes para diferenciar solicitudes internas.
+end note
+@enduml

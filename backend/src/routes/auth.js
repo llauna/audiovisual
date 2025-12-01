@@ -2,66 +2,55 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/Usuario');
-
 const router = express.Router();
+const verificarToken = require('../middleware/auth');
 
-// Registro
-router.post('/register', async (req, res) => {
-    try {
-        const { nombre, email, password } = req.body;
-
-        // Verificar si el usuario ya existe
-        const existeUsuario = await Usuario.findOne({ email });
-        if (existeUsuario) {
-            return res.status(400).json({ mensaje: 'El email ya está registrado' });
-        }
-
-        // Encriptar contraseña
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(password, salt);
-
-        // Crear usuario
-        const nuevoUsuario = new Usuario({
-            nombre,
-            email,
-            password: passwordHash
-        });
-
-        await nuevoUsuario.save();
-        res.status(201).json({ mensaje: 'Usuario registrado correctamente' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Login
 router.post('/login', async (req, res) => {
+    console.log(req.body);
+    const { email, password } = req.body;
+
     try {
-        const { email, password } = req.body;
+        // Validar datos de entrada
+        if (!email || !password) {
+            return res.status(400).json({ mensaje: 'Email y contraseña son obligatorios' });
+        }
 
         // Buscar usuario
         const usuario = await Usuario.findOne({ email });
         if (!usuario) {
-            return res.status(400).json({ mensaje: 'Credenciales inválidas' });
+            return res.status(400).json({ mensaje: 'Usuario no encontrado' });
         }
 
-        // Comparar contraseña
-        const esValida = await bcrypt.compare(password, usuario.password);
-        if (!esValida) {
-            return res.status(400).json({ mensaje: 'Credenciales inválidas' });
+        // Verificar contraseña
+        const esPasswordValida = await bcrypt.compare(password, usuario.password);
+        if (!esPasswordValida) {
+            return res.status(400).json({ mensaje: 'Contraseña incorrecta' });
         }
 
-        // Crear token JWT
+        // Verificar que JWT_SECRET esté configurado
+        if (!process.env.JWT_SECRET) {
+            console.error("❌ JWT_SECRET no está configurado en .env");
+            return res.status(500).json({ mensaje: 'Error interno de configuración' });
+        }
+
+        // Generar token
         const token = jwt.sign(
             { id: usuario._id, email: usuario.email },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        res.json({ token });
+        // Respuesta exitosa
+        return res.json({ token });
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('❌ Error en login:', err);
+        return res.status(500).json({ mensaje: 'Error interno del servidor' });
     }
 });
+
+router.get  ('/validar-token', verificarToken, (req, res) => {
+    res.json({ valido: true });
+} );
 
 module.exports = router;
