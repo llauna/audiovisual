@@ -8,8 +8,11 @@ import Eventos from "./pages/Eventos";
 import Almacenes from "./pages/Almacenes";
 import Inventario from "./pages/Inventario";
 import Presupuestos from "./pages/Presupuestos";
-import Personal from "./pages/Personal";
+import Personal from "./pages/usuarios/Personal.tsx";
 import Footer from "./components/Footer.tsx";
+
+import EditarUsuario from './pages/usuarios/EditarUsuario';
+import NuevoUsuario from "./pages/usuarios/NuevoUsuario.tsx";
 
 function App() {
     const token = localStorage.getItem("token");
@@ -28,6 +31,8 @@ function App() {
                 <Route path="/inventario" element={<PrivateRoute><Inventario /></PrivateRoute>} />
                 <Route path="/presupuestos" element={<PrivateRoute><Presupuestos /></PrivateRoute>} />
                 <Route path="/personal" element={<PrivateRoute><Personal /></PrivateRoute>} />
+                <Route path="/personal/nuevo" element={<PrivateRoute><NuevoUsuario /></PrivateRoute>} />
+                <Route path="/personal/editar/:id" element={<EditarUsuario />} />
 
                 <Route path="*" element={<Navigate to="/login" />} />
             </Routes>

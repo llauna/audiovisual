@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import Navbar from "../components/Navbar";
 import Login from "../pages/Login";
 import Items from "../pages/Items";
+import EditarUsuario from "../pages/usuarios/EditarUsuario";
+import NuevoUsuario from "../pages/usuarios/NuevoUsuario";
+import PrivateRoute from "./PrivateRoute.tsx";
 
 function AppRoutes() {
     const token = localStorage.getItem("token");
@@ -13,6 +16,22 @@ function AppRoutes() {
         <>
             {/* Mostrar Navbar solo si está autenticado y NO está en /login */}
             {isAuthenticated && location.pathname !== "/login" && <Navbar />}
+            <Routes>
+                <Route path = "/personal/nuevo" element={
+                    <PrivateRoute>
+                        <NuevoUsuario />
+                    </PrivateRoute>
+                }>
+                </Route>
+            </Routes>
+            <Routes>
+                <Route path = "/personal/editar/:id" element={
+                    <PrivateRoute>
+                        <EditarUsuario />
+                    </PrivateRoute>
+                }>
+                </Route>
+            </Routes>
 
             <Routes>
                 {/* Redirigir raíz a /login */}

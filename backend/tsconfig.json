@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",              /* Generar código JS moderno compatible con versiones recientes de Node */
+    "module": "commonjs",            /* Node.js usa CommonJS por defecto */
+    "moduleResolution": "node",      /* Resolución de módulos estilo Node */
+    "outDir": "./dist",              /* Donde se guardarán los archivos compilados */
+    "rootDir": "./",                 /* Raíz de los archivos fuente */
+    "strict": true,                  /* Activar comprobaciones estrictas de tipos */
+    "esModuleInterop": true,         /* Permite importar módulos CommonJS (como dotenv) con 'import' */
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,            /* Salta la comprobación de tipos en librerías (ahorra tiempo y errores) */
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*", "server.ts"], /* Incluir archivos fuente y el server.ts */
+  "exclude": ["node_modules"]
+}

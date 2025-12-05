@@ -14,7 +14,7 @@ export default function PrivateRoute({ children }: { children: React.ReactNode }
             return;
         }
 
-        fetch("/api/usuarios/validar-token", {
+        fetch("/api/auth/validar-token", {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(async (res) => {
